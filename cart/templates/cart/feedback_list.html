@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ template_data.title }} 🗣️</h2>
+    <hr>
+    {% if template_data.feedback_list %}
+        {% for feedback in template_data.feedback_list %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>{{ feedback.name|default:"Anonymous" }}</strong>
+                    <span class="text-muted float-end">{{ feedback.created_at|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ feedback.statement|linebreaks }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No feedback has been submitted yet.</p>
+    {% endif %}
+    <a href="{% url 'home.index' %}" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+{% endblock %}

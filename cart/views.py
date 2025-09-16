@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from movies.models import Movie
 from .utils import calculate_cart_total
-from .models import Order, Item
+from .models import Order, Item, Feedback
+from .forms import FeedbackForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 def index(request):
@@ -34,18 +35,22 @@ def add_to_cart(request, id):
 def clear(request):
     request.session['cart'] = {}
     return redirect('cart.index')
+
 @login_required
 def purchase(request):
     cart = request.session.get('cart', {})
     movie_ids = list(cart.keys())
-    if (movie_ids == []):
+    if not movie_ids:
         return redirect('cart.index')
+    
     movies_in_cart = Movie.objects.filter(id__in=movie_ids)
     cart_total = calculate_cart_total(cart, movies_in_cart)
+    
     order = Order()
     order.user = request.user
     order.total = cart_total
     order.save()
+    
     for movie in movies_in_cart:
         item = Item()
         item.movie = movie
@@ -53,10 +58,17 @@ def purchase(request):
         item.order = order
         item.quantity = cart[str(movie.id)]
         item.save()
+        
     request.session['cart'] = {}
-    template_data = {}
-    template_data['title'] = 'Purchase confirmation'
-    template_data['order_id'] = order.id
+    
+    feedback_form = FeedbackForm()
+    
+    template_data = {
+        'title': 'Purchase confirmation',
+        'order_id': order.id,
+        'feedback_form': feedback_form  # Add the form to the template data
+    }
+    
     return render(request, 'cart/purchase.html', {'template_data': template_data})
 @login_required
 def orders(request):
@@ -64,4 +76,18 @@ def orders(request):
     template_data['title'] = 'Orders'
     template_data['orders'] = request.user.order_set.all()
     return render(request, 'accounts/orders.html', {'template_data': template_data})
+def submit_feedback(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+    return redirect('home.index')
+
+def view_feedback(request):
+    all_feedback = Feedback.objects.all().order_by('-created_at')
+    template_data = {
+        'title': 'User Feedback',
+        'feedback_list': all_feedback
+    }
+    return render(request, 'cart/feedback_list.html', {'template_data': template_data})
 # Create your views here.

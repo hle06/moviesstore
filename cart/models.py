@@ -17,3 +17,11 @@ class Item(models.Model):
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name
 # Create your models here.
+class Feedback(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, blank=True) # Optional name
+    statement = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback by {self.name or 'Anonymous'} on {self.created_at.strftime('%b %d, %Y')}"
