@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+  <h1>Movie Petitions</h1>
+  <a href="{% url 'petitions:create' %}">Suggest a New Movie!</a>
+  <hr>
+  
+  {% for petition in petitions %}
+    <div>
+      <h3>{{ petition.movie_title }}</h3>
+      <p>Suggested by: {{ petition.created_by.username }} on {{ petition.created_at|date:"F d, Y" }}</p>
+      <p>{{ petition.reason }}</p>
+      
+      <form action="{% url 'petitions:vote' petition.id %}" method="post">
+        {% csrf_token %}
+        <p><strong>Total Votes: {{ petition.total_votes }}</strong></p>
+        
+        {% if user in petition.voters.all %}
+          <button type="submit">Unvote</button>
+        {% else %}
+          <button type="submit">Vote</button>
+        {% endif %}
+      </form>
+    </div>
+    <hr>
+  {% endfor %}
+{% endblock %}
