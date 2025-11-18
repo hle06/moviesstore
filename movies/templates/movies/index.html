@@ -7,22 +7,41 @@
       <div class="col mx-auto mb-3">
         <h2>List of Movies</h2>
         <hr />
-        <p class="card-text">
-          <form method="GET">
-            <div class="row">
-              <div class="col-auto">
-                <div class="input-group col-auto">
-                  <div class="input-group-text">
-                    Search</div>
-                  <input type="text" class="form-control" name="search">
+        <div class="d-flex justify-content-between"> 
+          <p class="card-text">
+            <form method="GET">
+              <div class="row">
+                <div class="col-auto">
+                  <div class="input-group col-auto">
+                    <div class="input-group-text">
+                      Search</div>
+                    <input type="text" class="form-control" name="search" value="{{ template_data.search_term|default:'' }}">
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <button class="btn bg-dark text-white" type="submit">Search</button>
                 </div>
               </div>
-              <div class="col-auto">
-                <button class="btn bg-dark text-white" type="submit">Search</button>
-              </div>
-            </div>
-          </form>
-        </p>
+            </form>
+          </p>
+
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle bg-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort By: {{ template_data.sort_name }} 
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item {% if template_data.current_sort == 'name_asc' %}active{% endif %}" 
+                       href="?search={{ request.GET.search|default:'' }}&sort_by=name_asc">Alphabetical (A-Z)</a></li>
+                <li><a class="dropdown-item {% if template_data.current_sort == 'name_desc' %}active{% endif %}" 
+                       href="?search={{ request.GET.search|default:'' }}&sort_by=name_desc">Reverse Alphabetical (Z-A)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {% if template_data.current_sort == 'length_asc' %}active{% endif %}" 
+                       href="?search={{ request.GET.search|default:'' }}&sort_by=length_asc">Title Length (Shortest First)</a></li>
+                <li><a class="dropdown-item {% if template_data.current_sort == 'length_desc' %}active{% endif %}" 
+                       href="?search={{ request.GET.search|default:'' }}&sort_by=length_desc">Title Length (Longest First)</a></li>
+            </ul>
+          </div>
+          </div>
       </div>
     </div>
     <div class="row">
@@ -34,6 +53,7 @@
             <a href="{% url 'movies.show' id=movie.id %}" class="btn bg-dark text-white">
               {{ movie.name }}
             </a>
+            <small class="text-muted d-block">{{ movie.name|length }} chars</small> 
           </div>
         </div>
       </div>
